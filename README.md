@@ -1,14 +1,15 @@
 # Advent of Code Starter
 
-Starter template for solving [Advent of Code](https://adventofcode.com/) in the [Kotlin](https://kotlinlang.org/). 
-Advent of Code is an Advent calendar of small programming puzzles by [Eric Wastl](http://was.tl/).
+Starter template for solving [Advent of Code](https://adventofcode.com/) in [Kotlin](https://kotlinlang.org/). 
+Advent of Code is an Advent calendar of small programming puzzles by [Eric Wastl](http://was.tl/). 
+Based on [aoc-kotlin-starter](https://github.com/hughjdavey/aoc-kotlin-starter) template by [Hugh Davey](https://github.com/hughjdavey).
 
 ### Features
 
 * Gradle setup so you can run a specific day or all days on the command line (see **Running**)
 * Timings for each part of each day
 * Input for each day automatically exposed in String and List form
-* Junit 5 and AssertJ test libraries included (see **Testing**)
+* [Junit 5](https://junit.org/junit5/) and [AssertJ](https://assertj.github.io/doc/) test libraries included (see **Testing**)
 * Starter .gitignore
 
 ### Running
@@ -22,7 +23,7 @@ Project is already setup with gradle. To run the app:
 
 ### Testing
 
-Project includes Junit and Hamcrest and a stub unit test to get you going. To run all tests:
+Project includes JUnit and AssertJ and a stub unit test to get you going. To run all tests:
 
 * Navigate to top-level directory on the command line
 * Run `./gradlew test`
