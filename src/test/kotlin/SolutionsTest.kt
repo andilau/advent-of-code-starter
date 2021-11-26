@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 
-@DisplayName("Advent of Code solutions")
+@DisplayName("Solutions")
 class SolutionsTest {
     private val input = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9)
 
