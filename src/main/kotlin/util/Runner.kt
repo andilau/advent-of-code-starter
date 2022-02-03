@@ -1,10 +1,11 @@
 package util
 
 import days.Puzzle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.reflections.Reflections
-import kotlin.math.max
 import kotlin.time.ExperimentalTime
-import kotlin.time.TimedValue
 import kotlin.time.measureTimedValue
 
 @ExperimentalTime
@@ -17,9 +18,13 @@ object Runner {
     fun main(args: Array<String>) {
         val solutions = puzzleClasses.map { dayNumber(it.simpleName) }.toSet()
 
+        args.map { it.toIntOrNull() ?: error("Day argument must be an integer") }
+            .filter { it !in solutions }
+            .forEach { error("No solution for day $it found") }
+
         val days: List<Int>? = args
-            .map { it.toIntOrNull() ?: error("Day argument must be an integer") }
-            .filter { it in solutions || error("No solution for day $it found") }
+            .mapNotNull { it.toIntOrNull() }
+            .filter { it in solutions }
             .takeIf { it.isNotEmpty() }
 
         puzzleClasses
@@ -32,42 +37,38 @@ object Runner {
 
     private fun printDay(puzzleClass: Class<out Puzzle>) {
         val dayNumber: Int = dayNumber(puzzleClass.simpleName)
-        println("\n--- Day $dayNumber: (${puzzleClass.simpleName}) ---")
+        println("\n=== DAY $dayNumber (${puzzleClass.simpleName}) ===")
 
-        var puzzle: Puzzle?
-        try {
-            puzzle = puzzleClass.constructors[0].newInstance() as Puzzle
+        val puzzle: Puzzle = try {
+            puzzleClass.constructors[0].newInstance() as Puzzle
         } catch (e: IllegalArgumentException) {
-            val requiredTypeName = puzzleClass.constructors[0].genericParameterTypes[0].typeName
-            puzzle = when (requiredTypeName) {
-                "java.lang.String" ->
+            when (val type = puzzleClass.constructors[0].genericParameterTypes[0].typeName) {
+                "java.lang.String" -> {
                     puzzleClass.constructors[0].newInstance(InputReader.getInputAsString(dayNumber)) as Puzzle
-                "java.util.List<java.lang.String>" ->
+                }
+                "java.util.List<java.lang.String>" -> {
                     puzzleClass.constructors[0].newInstance(InputReader.getInputAsList(dayNumber)) as Puzzle
-                "java.util.List<java.lang.Integer>" ->
+                }
+                "java.util.List<java.lang.Integer>" -> {
                     puzzleClass.constructors[0].newInstance(InputReader.getInputAsListOfInt(dayNumber)) as Puzzle
-                "java.util.List<java.lang.Long>" ->
+                }
+                "java.util.List<java.lang.Long>" -> {
                     puzzleClass.constructors[0].newInstance(InputReader.getInputAsListOfLong(dayNumber)) as Puzzle
-                "int[]" ->
-                    puzzleClass.constructors[0].newInstance(InputReader.getInputAsIntArray(dayNumber)) as Puzzle
-                else ->
-                    throw IllegalStateException("Unhandled Input: $requiredTypeName")
+                }
+                else -> error("Cant apply input: $type")
             }
         }
-        if (puzzle is Puzzle) {
-            val partOne = measureTimedValue { puzzle.partOne() }
-            val partTwo = measureTimedValue { puzzle.partTwo() }
-            printParts(partOne, partTwo)
-        }
-    }
 
-    private fun printParts(partOne: TimedValue<Any>, partTwo: TimedValue<Any>) {
-        val padding = max(
-            partOne.value.toString().length,
-            partTwo.value.toString().length
-        ) + 14        // 14 is 8 (length of 'Part 1: ') + 6 more
-        println("Part 1: ${partOne.value}".padEnd(padding, ' ') + "(${partOne.duration})")
-        println("Part 2: ${partTwo.value}".padEnd(padding, ' ') + "(${partTwo.duration})")
+        runBlocking(Dispatchers.IO) {
+            val d1 = async { measureTimedValue { puzzle.partOne() } }
+            val d2 = async { measureTimedValue { puzzle.partTwo() } }
+            with(d1.await()) {
+                println("Part 1: $value   (${duration})")
+            }
+            with(d2.await()) {
+                println("Part 2: $value   (${duration})")
+            }
+        }
     }
 
     private fun printError(message: String) =
