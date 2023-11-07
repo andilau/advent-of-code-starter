@@ -32,6 +32,6 @@ jobs:
             arguments: clean
 
       - name: Run the test suits
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v2.9.0
         with:
           arguments: test
